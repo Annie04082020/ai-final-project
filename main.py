@@ -162,7 +162,9 @@ norm_layer = layers.Normalization()
 # Fit the state of the layer to the spectrograms
 # with `Normalization.adapt`.
 norm_layer.adapt(data=train_spectrogram_ds.map(map_func=lambda spec, label: spec))
-model = models.Sequential([
+
+def train():
+  model = models.Sequential([
     layers.Input(shape=input_shape),
     # Downsample the input.
     layers.Resizing(32, 32),
@@ -178,9 +180,6 @@ model = models.Sequential([
     layers.Dropout(0.4),
     layers.Dense(num_labels),
 ])
-
-
-def train():
   model.summary()
   model.compile(
       optimizer=tf.keras.optimizers.Adam(),
@@ -188,12 +187,12 @@ def train():
       metrics=['accuracy'],
   )
 
-  EPOCHS = 20
+  EPOCHS = 30
   history = model.fit(
       train_spectrogram_ds,
       validation_data=val_spectrogram_ds,
       epochs=EPOCHS,
-      callbacks=tf.keras.callbacks.EarlyStopping(verbose=1, patience=10),
+      callbacks=tf.keras.callbacks.EarlyStopping(verbose=1, patience=15),
   )
   metrics = history.history
   plt.figure(figsize=(16,6))
@@ -226,8 +225,10 @@ def train():
   plt.xlabel('Prediction')
   plt.ylabel('Label')
   plt.savefig('test_img/prediction.png')
+  model.save('models_h5/language_identify_model.h5')
+  return model
 
-def predict(x):
+def predict(x,model):
   x = tf.io.read_file(str(x))
   x, sample_rate = tf.audio.decode_wav(x, desired_channels=1, desired_samples=16000,)
   x = tf.squeeze(x, axis=-1)
@@ -237,12 +238,17 @@ def predict(x):
 
   prediction = model(x)
   print(prediction)
-  x_labels = ['de', 'en', 'es', 'fr', 'it', 'se', 'tw']
+  x_labels = ['de', 'en', 'es', 'fr', 'it','jp', 'se','tw']
   plt.bar(x_labels, tf.nn.softmax(prediction[0]))
   plt.title('de')
   plt.savefig('img/predict.png')
-
   display.display(display.Audio(waveform, rate=16000))
+  export = ExportModel(model)
+  results = export(x)
+  predictions = results['predictions']
+  class_ids = results['class_ids']
+  class_names = results['class_names']
+  return predictions, class_ids, class_names
 
 class ExportModel(tf.Module):
   def __init__(self, model):
@@ -274,14 +280,21 @@ class ExportModel(tf.Module):
             'class_ids': class_ids,
             'class_names': class_names}
   
-export = ExportModel(model)
-export(tf.constant(str(data_dir/'../test/de.wav')))
-
-tf.saved_model.save(export, "saved")
-imported = tf.saved_model.load("saved")
-imported(waveform[tf.newaxis, :])
-
 if __name__ == "__main__":
   x = data_dir/'../test/de.wav'
-  train()
-  predict(x)
+  model= train()
+  predict(x,model)
+  export = ExportModel(model)
+  export(tf.constant(str(data_dir/'../test/de.wav')))
+  results = export(x)
+  predictions = results['predictions']
+  class_ids = results['class_ids']
+  class_names = results['class_names']
+  print("predictions: "+predictions)
+  print("class_ids: "+class_ids)
+  print("class_names: "+class_names)
+  tf.saved_model.save(export, "saved")
+  imported = tf.saved_model.load("saved")
+  imported(waveform[tf.newaxis, :])
+
+

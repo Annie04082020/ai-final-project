@@ -2,10 +2,8 @@ import pyaudio
 import wave
 import requests
 import json
-# from main import predict
 
-def record_audio(file_path, duration=5):
-    """錄製音檔"""
+def record_audio(file_path='recorded/recorded_audio.wav', duration=5):
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
