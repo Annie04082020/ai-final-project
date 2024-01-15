@@ -14,8 +14,9 @@ labels = ['de', 'en', 'es', 'fr', 'it', 'jp', 'se','tw']
 def transferFile():
     # files                   
     filename = fd.askopenfilename(title='Open file'
+                    ,initialdir= '/home/sholmes/ai-final-project'
                     ,filetypes=[('Audio file','*.mp3')]
-                    ,defaultextension='.mp3',multiple=True)     
+                    ,defaultextension='.mp3', multiple=True)     
     num =1                                              
     for item in filename:   
         src = item
@@ -29,6 +30,7 @@ def transferFile():
 
 def importFile():
     filename = fd.askopenfilename(title='Open file'
+                    ,initialdir= '/home/sholmes/ai-final-project'
                     ,filetypes=[('Audio file','*.wav')]
                     ,defaultextension='.wav',multiple=True)
     filenames_str = ", ".join(filename)
@@ -37,6 +39,7 @@ def importFile():
 
 def selectModel():
     filename = fd.askopenfilename(title='Open file'
+                    ,initialdir= '/home/sholmes/ai-final-project/models_h5'
                     ,filetypes=[('Keras model file','*.h5')]
                     ,defaultextension='.h5',multiple=True)
     model_path = filename    
