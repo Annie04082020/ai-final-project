@@ -238,17 +238,18 @@ def predict(x,model):
 
   prediction = model(x)
   print(prediction)
+  tf.print(prediction)
   x_labels = ['de', 'en', 'es', 'fr', 'it','jp', 'se','tw']
   plt.bar(x_labels, tf.nn.softmax(prediction[0]))
-  plt.title('de')
+  plt.title('input_prediction')
   plt.savefig('img/predict.png')
   display.display(display.Audio(waveform, rate=16000))
-  export = ExportModel(model)
-  results = export(x)
-  predictions = results['predictions']
-  class_ids = results['class_ids']
-  class_names = results['class_names']
-  return predictions, class_ids, class_names
+  # export = ExportModel(model)
+  # results = export(x)
+  # predictions = results['predictions']
+  # class_ids = results['class_ids']
+  # class_names = results['class_names']
+  return prediction # , predictions, class_ids, class_names
 
 class ExportModel(tf.Module):
   def __init__(self, model):
