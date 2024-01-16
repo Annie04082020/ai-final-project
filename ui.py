@@ -21,7 +21,7 @@ def transferFile():
     for item in filename:   
         src = item
         print(item)
-        dst = "transferred/transferred_"+str(num)+"_"+str(item[:-4])+".wav"
+        dst = "transferred/transferred_"+str(num)+".wav"
         sound = AudioSegment.from_mp3(src)
         sound.export(dst, format="wav")
         num += 1
@@ -83,12 +83,13 @@ predict_class_id = tk.StringVar()
 predict_class_names = tk.StringVar()
 chosen_model = tk.StringVar()
 predict_result = tk.StringVar()
+default_labels = tk.StringVar()
 
 transfer = tk.Button(window, height=3, width =10,text="轉檔.mp3", command = transferFile)
 transfer.place(x=100,y=100,anchor=CENTER)
 
 ch_model = tk.Button(window, height=3, width =10,text="選擇模型", command = selectModel)
-ch_model.place(x=500,y=500,anchor=CENTER)
+ch_model.place(x=700,y=500,anchor=CENTER)
 
 train_btn = tk.Button(window, height=3, width =10,text="訓練", command = training)
 train_btn.place(x=100,y=200,anchor=CENTER)
@@ -133,5 +134,9 @@ predict_classNames.place(x=450,y=350,anchor=CENTER)
 predict_results = tk.Label(window, textvariable=predict_result, height=3)
 predict_result.set('prediction_result')
 predict_results.place(x=450,y=400,anchor=CENTER)
+
+label_display = tk.Label(window, textvariable = default_labels, height=3)
+default_labels.set(labels)
+label_display.place(x=450,y=500,anchor=CENTER)
 
 window.mainloop()
